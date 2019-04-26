@@ -6,9 +6,9 @@ import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
-import argparse
 import pandas as pd
 import openpyxl
+from progress.bar import IncrementalBar
 
 win_unicode_console.enable()
 
@@ -52,14 +52,6 @@ def get_service(api_name, api_version, scope, client_secrets_path):
 
   return service
 
-scope = ['https://www.googleapis.com/auth/webmasters.readonly']
-# Authenticate and construct service.
-service = get_service('webmasters', 'v3', scope, 'client_secrets.json')
-profiles = service.sites().list().execute()
-#profiles is now list    
-
-print(len(profiles['siteEntry']))
-
 parser = argparse.ArgumentParser()
 
 #when doing argument parsing in command terminal put python before file name. No idea why, so just do it.
@@ -69,9 +61,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("start_date", help="start date in format yyyy-mm-dd or 'yesterday' '7DaysAgo'")
 parser.add_argument("end_date", help="start date in format yyyy-mm-dd or 'today'")
 #parser.add_argument("-f","--filters",default=2,type=int, help="Minimum number for metric, default is 2")
-parser.add_argument("-d","--dimensions",default="pagePath", help="The dimensions are the left hand side of the table, default is pagePath")
+parser.add_argument("-d","--dimensions",default="page", help="The dimensions are the left hand side of the table, default is page")
 #parser.add_argument("-m","--metrics",default="pageviews", help="The metrics are the things on the left, default is pageviews")
-parser.add_argument("-n","--name",default='finaloutput' + datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"),type=str, help="File name for final output, default is finaloutput + the current date. You do NOT need to add file extension.")
+parser.add_argument("-n","--name",default='search-console' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is finaloutput + the current date. You do NOT need to add file extension.")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
 
 args = parser.parse_args()
@@ -91,9 +83,22 @@ name = args.name
 # name = 'output'
 
 ## end test vars
+
+scope = ['https://www.googleapis.com/auth/webmasters.readonly']
+# Authenticate and construct service.
+service = get_service('webmasters', 'v3', scope, 'client_secrets.json')
+profiles = service.sites().list().execute()
+#profiles is now list    
+
+print(len(profiles['siteEntry']))
+
+bar = IncrementalBar('Processing',max=len(profiles['siteEntry']))
+
+
 bigdf = pd.DataFrame()
 
 for item in profiles['siteEntry']:
+    bar.next()
     if item['permissionLevel'] != 'siteUnverifiedUser':
 
         smalldf = pd.DataFrame()
@@ -121,7 +126,14 @@ for item in profiles['siteEntry']:
             else:
                 bigdf = pd.concat([bigdf,smalldf])
 
-            print(bigdf)
+            #print(bigdf)
+            print('.',end='')
+bar.finish()
+
+bigdf.reset_index()
+#bigdf.to_json("output.json",orient="records")
+
+bigdf['keys'] = bigdf["keys"].str[0]
 
 bigdf.to_excel(name + '.xlsx', sheet_name='data')
 print("finished")
