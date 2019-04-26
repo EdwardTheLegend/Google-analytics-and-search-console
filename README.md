@@ -12,6 +12,7 @@ pip install google-api-python-client
 pip install pandas
 pip install openpyxl
 pip install progress
+pip install oauth2client
 ~~~~
 
 You need a Oauth2 account and put clients_secrets.json in same folder as script
