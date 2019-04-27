@@ -16,4 +16,4 @@ pip install oauth2client
 ~~~~
 
 You need a Oauth2 account and put clients_secrets.json in same folder as script
-Instructions: https://developers.google.com/webmaster-tools/search-console-api-original/v3/quickstart/quickstart-python 
+https://developers.google.com/webmaster-tools/search-console-api-original/v3/quickstart/quickstart-python 
