@@ -75,6 +75,7 @@ end_date = args.end_date
 dimensions = args.dimensions
 #metrics = args.metrics
 name = args.name
+dataType = args.type
 
 ## test vars defined here
 # start_date = '2019-04-01'
@@ -110,7 +111,7 @@ for item in profiles['siteEntry']:
             'startDate': start_date,
             'endDate': end_date,
             'dimensions': [dimensions],
-            'searchType': ['web'],
+            'searchType': dataType,
             'rowLimit': 5000
         }).execute()
 
