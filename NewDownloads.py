@@ -60,6 +60,7 @@ parser = argparse.ArgumentParser()
 #parser.add_argument("viewProfileID",type=int, help="GA View (profile) ID as a number") !!!already got this from loop!!!
 parser.add_argument("start_date", help="start date in format yyyy-mm-dd or 'yesterday' '7DaysAgo'")
 parser.add_argument("end_date", help="start date in format yyyy-mm-dd or 'today'")
+parser.add_argument("-t", "--type", default="web", choices=("image","video","web"), help="Search types for the returned data, default is web")
 #parser.add_argument("-f","--filters",default=2,type=int, help="Minimum number for metric, default is 2")
 parser.add_argument("-d","--dimensions",default="page", help="The dimensions are the left hand side of the table, default is page")
 #parser.add_argument("-m","--metrics",default="pageviews", help="The metrics are the things on the left, default is pageviews")
