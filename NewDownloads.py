@@ -129,7 +129,6 @@ for item in profiles['siteEntry']:
                 bigdf = pd.concat([bigdf,smalldf])
 
             #print(bigdf)
-            print('.',end='')
 bar.finish()
 
 bigdf.reset_index()
