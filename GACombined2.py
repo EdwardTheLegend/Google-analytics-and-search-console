@@ -94,15 +94,20 @@ for item in profiles['items']:
     if 'starred' in item:
         smalldf = pd.DataFrame()
         #print(item['id'] + ',' + start_date + ',' + end_date)
-        results = service.data().ga().get(
-        ids='ga:' + str(item['id']),
-        start_date=start_date,
-        end_date=end_date,
-        filters='ga:pageviews>' + str(filters),
-        #sort='-ga:pageviews',
-        max_results='1000',
-        dimensions='ga:' + dimensions,
-        metrics='ga:' + metrics).execute()
+        
+        try:
+          results = service.data().ga().get(
+          ids='ga:' + str(item['id']),
+          start_date=start_date,
+          end_date=end_date,
+          filters='ga:pageviews>' + str(filters),
+          #sort='-ga:pageviews',
+          max_results='1000',
+          dimensions='ga:' + dimensions,
+          metrics='ga:' + metrics).execute()
+        except:
+            print("GA call failed for " + item['websiteUrl'])
+            results['totalResults'] = 0
 
         if results['totalResults'] > 0:
             #print(results['rows'])
