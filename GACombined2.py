@@ -73,7 +73,7 @@ parser.add_argument("end_date", help="start date in format yyyy-mm-dd or 'today'
 parser.add_argument("-f","--filters",default=2,type=int, help="Minimum number for metric, default is 2")
 parser.add_argument("-d","--dimensions",default="pagePath", help="The dimensions are the left hand side of the table, default is pagePath")
 parser.add_argument("-m","--metrics",default="pageviews", help="The metrics are the things on the left, default is pageviews")
-parser.add_argument("-n","--name",default='finaloutput' + datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"),type=str, help="File name for final output, default is finaloutput + the current date. You do NOT need to add file extension.")
+parser.add_argument("-n","--name",default='finaloutput' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is finaloutput + the current date. You do NOT need to add file extension.")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
 
 args = parser.parse_args()
@@ -94,15 +94,20 @@ for item in profiles['items']:
     if 'starred' in item:
         smalldf = pd.DataFrame()
         #print(item['id'] + ',' + start_date + ',' + end_date)
-        results = service.data().ga().get(
-        ids='ga:' + str(item['id']),
-        start_date=start_date,
-        end_date=end_date,
-        filters='ga:pageviews>' + str(filters),
-        #sort='-ga:pageviews',
-        max_results='1000',
-        dimensions='ga:' + dimensions,
-        metrics='ga:' + metrics).execute()
+        
+        try:
+          results = service.data().ga().get(
+          ids='ga:' + str(item['id']),
+          start_date=start_date,
+          end_date=end_date,
+          filters='ga:pageviews>' + str(filters),
+          #sort='-ga:pageviews',
+          max_results='1000',
+          dimensions='ga:' + dimensions,
+          metrics='ga:' + metrics).execute()
+        except:
+            print("GA call failed for " + item['websiteUrl'])
+            results['totalResults'] = 0
 
         if results['totalResults'] > 0:
             #print(results['rows'])
