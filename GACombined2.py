@@ -85,6 +85,11 @@ dimensions = args.dimensions
 metrics = args.metrics
 name = args.name
 
+# command line options record
+options = [[start_date,end_date,filters,dimensions,metrics,name]]
+optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name"])
+print(optionsdf)
+
 if dimensions == "pagePath":
     bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
 else:
