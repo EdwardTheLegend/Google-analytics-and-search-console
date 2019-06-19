@@ -8,6 +8,7 @@ from oauth2client import file
 from oauth2client import tools
 import argparse
 import pandas as pd
+from pandas import ExcelWriter
 import openpyxl
 
 win_unicode_console.enable()
@@ -133,6 +134,10 @@ for item in profiles['items']:
             bigdf = pd.concat([bigdf,smalldf])
             print(bigdf)
 
-bigdf.to_excel(name + '.xlsx', sheet_name='data')
+bigdf.reset_index()
+
+with ExcelWriter(name + '.xlsx') as writer:
+  bigdf.to_excel(writer, sheet_name='data')
+  optionsdf.to_excel(writer,sheet_name="Options")
 print("finished")
 
