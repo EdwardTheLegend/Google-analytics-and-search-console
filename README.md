@@ -31,7 +31,10 @@ optional arguments:
                         be in this a file that is this string concatenated
                         with client_secret.json
 ~~~~
-## GACombined2.py                        
+## GACombined2.py      
+
+This script download from Google Analytics but ***ONLY*** views which are marked as starred/fav
+
 ~~~~
 usage: GACombined2.py [-h] [-f FILTERS] [-d DIMENSIONS] [-m METRICS] [-n NAME]
                       [-g GOOGLEACCOUNT]
@@ -107,8 +110,8 @@ If you have more than one project the select above.
 
 Search for the two apis you need:
 
-Analytics API   (careful, not the "Google Analytics Reporting API")
-Google Search Console API 
+* Analytics API   (careful, not the "Google Analytics Reporting API")
+* Google Search Console API  (should already be enabled)
 
 For the first one click "Enable"
 
