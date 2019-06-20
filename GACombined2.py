@@ -6,7 +6,6 @@ import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
-import argparse
 import pandas as pd
 from pandas import ExcelWriter
 import openpyxl
@@ -61,7 +60,7 @@ accountId='~all',
 webPropertyId='~all').execute()
 #profiles is now list    
 
-print(profiles['totalResults'])
+print("Total results:" + profiles['totalResults'])
 
 parser = argparse.ArgumentParser()
 
@@ -89,7 +88,7 @@ name = args.name
 # command line options record
 options = [[start_date,end_date,filters,dimensions,metrics,name]]
 optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name"])
-print(optionsdf)
+#print(optionsdf)
 
 if dimensions == "pagePath":
     bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
@@ -132,12 +131,12 @@ for item in profiles['items']:
                
 
             bigdf = pd.concat([bigdf,smalldf])
-            print(bigdf)
+            #print(bigdf)
 
 bigdf.reset_index()
 
 with ExcelWriter(name + '.xlsx') as writer:
   bigdf.to_excel(writer, sheet_name='data')
   optionsdf.to_excel(writer,sheet_name="Options")
-print("finished")
+print("finished and outputed to excel file")
 
