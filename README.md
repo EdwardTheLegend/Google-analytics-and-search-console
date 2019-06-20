@@ -4,7 +4,7 @@ These script can scrape Google analytics and the Google search console for info 
 # Usage
 
 ## NewDownloads.py
-
+~~~~
 usage: NewDownloads.py [-h] [-t {image,video,web}] [-d DIMENSIONS] [-n NAME]
                        [-g GOOGLEACCOUNT]
                        start_date end_date
@@ -30,9 +30,9 @@ optional arguments:
                         particular set of secrets. Client secrets will have to
                         be in this a file that is this string concatenated
                         with client_secret.json
-
+~~~~
 ## GACombined2.py                        
-
+~~~~
 usage: GACombined2.py [-h] [-f FILTERS] [-d DIMENSIONS] [-m METRICS] [-n NAME]
                       [-g GOOGLEACCOUNT]
                       start_date end_date
@@ -64,7 +64,7 @@ optional arguments:
                         text file then every line in the text file is
                         processed as one user and all results appended
                         together into a file file
-
+~~~~
 #pip commands
 copy and paste these into the terminal
 
