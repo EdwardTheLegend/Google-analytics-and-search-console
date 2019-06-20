@@ -42,6 +42,9 @@ metrics = args.metrics
 name = args.name
 googleaccountstring = args.googleaccount
 
+options = [[start_date,end_date,filters,dimensions,metrics,name,googleaccountstring]]
+optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name","Google Account"])
+#print(optionsdf)
 
 scope = ['https://www.googleapis.com/auth/analytics.readonly']
 
@@ -131,9 +134,10 @@ for thisgoogleaccount in googleaccountslist:
 if googleaccountstring > "" :
     name = googleaccountstring + "-" + name 
 
-combinedDF.to_excel(name + '.xlsx', sheet_name='data')
+combinedDF.reset_index()
 
-
-
-print("finished")
+with ExcelWriter(name + '.xlsx') as writer:
+  combinedDF.to_excel(writer, sheet_name='data')
+  optionsdf.to_excel(writer,sheet_name="Options")
+print("finished and outputed to excel file")
 
