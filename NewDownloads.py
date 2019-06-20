@@ -9,7 +9,7 @@ from oauth2client import tools
 import pandas as pd
 import openpyxl
 from progress.bar import IncrementalBar
-import google-api-get-service
+from googleAPIget_service import get_service
 
 win_unicode_console.enable()
 

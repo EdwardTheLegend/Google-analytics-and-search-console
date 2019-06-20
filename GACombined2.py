@@ -9,7 +9,7 @@ from oauth2client import tools
 import argparse
 import pandas as pd
 import openpyxl
-import google-api-get-service
+from googleAPIget_service import get_service
 
 win_unicode_console.enable()
 
