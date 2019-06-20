@@ -12,3 +12,4 @@ webmasters.dat
 Dont Upload This!!.txt
 
 __pycache__/googleAPIget_service.cpython-37.pyc
+*.json
