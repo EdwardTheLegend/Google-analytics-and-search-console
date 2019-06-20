@@ -14,15 +14,6 @@ from googleAPIget_service import get_service
 win_unicode_console.enable()
 
 
-scope = ['https://www.googleapis.com/auth/analytics.readonly']
-# Authenticate and construct service.
-service = get_service('analytics', 'v3', scope, 'client_secrets.json')
-profiles = service.management().profiles().list(
-accountId='~all',
-webPropertyId='~all').execute()
-#profiles is now list    
-
-print(profiles['totalResults'])
 
 parser = argparse.ArgumentParser()
 
@@ -38,6 +29,8 @@ parser.add_argument("-m","--metrics",default="pageviews", help="The metrics are 
 parser.add_argument("-n","--name",default='finaloutput' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is finaloutput + the current date. You do NOT need to add file extension.")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
 
+parser.add_argument("-g","--googleaccount",type=str, default="", help="Name of a google account; does not have to literally be the account name but becomes a token to access that particular set of secrets. Client secrets will have to be in this a file that is this string concatenated with client_secret.json")
+
 args = parser.parse_args()
 
 start_date = args.start_date
@@ -46,6 +39,18 @@ filters = args.filters
 dimensions = args.dimensions
 metrics = args.metrics
 name = args.name
+googleaccountstring = args.googleaccount
+
+
+scope = ['https://www.googleapis.com/auth/analytics.readonly']
+# Authenticate and construct service.
+service = get_service('analytics', 'v3', scope, 'client_secrets.json', googleaccountstring)
+profiles = service.management().profiles().list(
+accountId='~all',
+webPropertyId='~all').execute()
+#profiles is now list    
+
+print(profiles['totalResults'])
 
 if dimensions == "pagePath":
     bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
@@ -89,6 +94,9 @@ for item in profiles['items']:
 
             bigdf = pd.concat([bigdf,smalldf])
             print(bigdf)
+
+if googleaccountstring > "" :
+    name = googleaccountstring + "-" + name 
 
 bigdf.to_excel(name + '.xlsx', sheet_name='data')
 print("finished")

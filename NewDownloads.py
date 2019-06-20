@@ -28,6 +28,7 @@ parser.add_argument("-d","--dimensions",default="page", help="The dimensions are
 #parser.add_argument("-m","--metrics",default="pageviews", help="The metrics are the things on the left, default is pageviews")
 parser.add_argument("-n","--name",default='search-console' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is finaloutput + the current date. You do NOT need to add file extension.")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
+parser.add_argument("-g","--googleaccount",type=str, default="", help="Name of a google account; does not have to literally be the account name but becomes a token to access that particular set of secrets. Client secrets will have to be in this a file that is this string concatenated with client_secret.json")
 
 args = parser.parse_args()
 
@@ -38,6 +39,7 @@ dimensions = args.dimensions
 #metrics = args.metrics
 name = args.name
 dataType = args.type
+googleaccountstring = args.googleaccount
 
 ## test vars defined here
 # start_date = '2019-04-01'
@@ -50,7 +52,7 @@ dataType = args.type
 
 scope = ['https://www.googleapis.com/auth/webmasters.readonly']
 # Authenticate and construct service.
-service = get_service('webmasters', 'v3', scope, 'client_secrets.json')
+service = get_service('webmasters', 'v3', scope, 'client_secrets.json', googleaccountstring)
 profiles = service.sites().list().execute()
 #profiles is now list    
 
@@ -97,6 +99,9 @@ bigdf.reset_index()
 #bigdf.to_json("output.json",orient="records")
 
 bigdf['keys'] = bigdf["keys"].str[0]
+
+if googleaccountstring > "" :
+    name = googleaccountstring + "-" + name 
 
 bigdf.to_excel(name + '.xlsx', sheet_name='data')
 print("finished")
