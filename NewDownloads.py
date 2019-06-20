@@ -55,13 +55,17 @@ scope = ['https://www.googleapis.com/auth/webmasters.readonly']
 
 try:
     googleaccountslist = open(googleaccountstring).read().splitlines()
+    # remove empty lines
+    googleaccountslist = [x.strip() for x in googleaccountslist if x.strip()]
 except:
     googleaccountslist = [googleaccountstring]
 
+print(googleaccountslist)
 
 combinedDF = pd.DataFrame()
 
 for thisgoogleaccount in googleaccountslist:
+    print(thisgoogleaccount)
     # Authenticate and construct service.
     service = get_service('webmasters', 'v3', scope, 'client_secrets.json', thisgoogleaccount)
     profiles = service.sites().list().execute()

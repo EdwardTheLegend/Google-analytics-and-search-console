@@ -47,8 +47,12 @@ scope = ['https://www.googleapis.com/auth/analytics.readonly']
 
 try:
     googleaccountslist = open(googleaccountstring).read().splitlines()
+    # remove empty lines
+    googleaccountslist = [x.strip() for x in googleaccountslist if x.strip()]
 except:
     googleaccountslist = [googleaccountstring]
+
+print(googleaccountslist)
 
 if dimensions == "pagePath":
     combinedDF = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
@@ -57,6 +61,7 @@ else:
     
 
 for thisgoogleaccount in googleaccountslist:
+    print(thisgoogleaccount)
     if dimensions == "pagePath":
         bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
     else:
