@@ -6,23 +6,15 @@ import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
+import argparse
 import pandas as pd
-from pandas import ExcelWriter
 import openpyxl
 from googleAPIget_service import get_service
+import sys
 
 win_unicode_console.enable()
 
 
-scope = ['https://www.googleapis.com/auth/analytics.readonly']
-# Authenticate and construct service.
-service = get_service('analytics', 'v3', scope, 'client_secrets.json')
-profiles = service.management().profiles().list(
-accountId='~all',
-webPropertyId='~all').execute()
-#profiles is now list    
-
-print("Total results:" + profiles['totalResults'])
 
 parser = argparse.ArgumentParser()
 
@@ -35,8 +27,10 @@ parser.add_argument("end_date", help="start date in format yyyy-mm-dd or 'today'
 parser.add_argument("-f","--filters",default=2,type=int, help="Minimum number for metric, default is 2")
 parser.add_argument("-d","--dimensions",default="pagePath", help="The dimensions are the left hand side of the table, default is pagePath")
 parser.add_argument("-m","--metrics",default="pageviews", help="The metrics are the things on the left, default is pageviews")
-parser.add_argument("-n","--name",default='finaloutput' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is finaloutput + the current date. You do NOT need to add file extension.")
+parser.add_argument("-n","--name",default='analytics-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is analytics- + the current date. You do NOT need to add file extension.")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
+
+parser.add_argument("-g","--googleaccount",type=str, default="", help="Name of a google account; does not have to literally be the account name but becomes a token to access that particular set of secrets. Client secrets will have to be in this a file that is this string concatenated with client_secret.json.  OR if this is the name of a text file then every line in the text file is processed as one user and all results appended together into a file file")
 
 args = parser.parse_args()
 
@@ -46,59 +40,104 @@ filters = args.filters
 dimensions = args.dimensions
 metrics = args.metrics
 name = args.name
+googleaccountstring = args.googleaccount
 
-# command line options record
-options = [[start_date,end_date,filters,dimensions,metrics,name]]
-optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name"])
+options = [[start_date,end_date,filters,dimensions,metrics,name,googleaccountstring]]
+optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name","Google Account"])
 #print(optionsdf)
 
+scope = ['https://www.googleapis.com/auth/analytics.readonly']
+
+try:
+    googleaccountslist = open(googleaccountstring).read().splitlines()
+    # remove empty lines
+    googleaccountslist = [x.strip() for x in googleaccountslist if x.strip()]
+except:
+    googleaccountslist = [googleaccountstring]
+
+print(googleaccountslist)
+
 if dimensions == "pagePath":
-    bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
+    combinedDF = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
 else:
-    bigdf = pd.DataFrame(columns=['viewid',dimensions,metrics])
+    combinedDF = pd.DataFrame(columns=['viewid',dimensions,metrics])
+    
 
-for item in profiles['items']:
-    if 'starred' in item:
-        smalldf = pd.DataFrame()
-        #print(item['id'] + ',' + start_date + ',' + end_date)
-        
-        try:
-          results = service.data().ga().get(
-          ids='ga:' + str(item['id']),
-          start_date=start_date,
-          end_date=end_date,
-          filters='ga:pageviews>' + str(filters),
-          #sort='-ga:pageviews',
-          max_results='1000',
-          dimensions='ga:' + dimensions,
-          metrics='ga:' + metrics).execute()
-        except:
-            print("GA call failed for " + item['websiteUrl'])
-            results['totalResults'] = 0
+for thisgoogleaccount in googleaccountslist:
+    print(thisgoogleaccount)
+    if dimensions == "pagePath":
+        bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
+    else:
+        bigdf = pd.DataFrame(columns=['viewid',dimensions,metrics])
+    
 
-        if results['totalResults'] > 0:
-            #print(results['rows'])
-            #print(smalldf)
-            smalldf = smalldf.append(results['rows'])
-            #print(smalldf)
-            smalldf.columns = [dimensions,metrics]
-            #print(smalldf)
-        
-            smalldf.insert(0,'viewid',item['id'])
-            #print(smalldf)
+    # Authenticate and construct service.
+    service = get_service('analytics', 'v3', scope, 'client_secrets.json', thisgoogleaccount)
 
-            smalldf.insert(1,'websiteUrl',item['websiteUrl'])
-            if dimensions == "pagePath":
-                smalldf['Url'] = smalldf['websiteUrl'] + smalldf[dimensions]
-               
+    profiles = service.management().profiles().list(
+    accountId='~all',
+    webPropertyId='~all').execute()
+    #profiles is now list    
 
-            bigdf = pd.concat([bigdf,smalldf])
-            #print(bigdf)
+    print("Processing: " + thisgoogleaccount)
+    print("Total profiles: " + str(profiles['totalResults']))
 
-bigdf.reset_index()
+    for item in profiles['items']:
+        if 'starred' in item:
+            smalldf = pd.DataFrame()
+            #print(item['id'] + ',' + start_date + ',' + end_date)
+            
+            print("Try querying: "+ str(item['id'])+":"+  item['websiteUrl'])
+            try:
+                results = service.data().ga().get(
+                ids='ga:' + str(item['id']),
+                start_date=start_date,
+                end_date=end_date,
+                filters='ga:pageviews>' + str(filters),
+                #sort='-ga:pageviews',
+                max_results='1000',
+                dimensions='ga:' + dimensions,
+                metrics='ga:' + metrics).execute()
+            except:
+                print("GA call failed for " + item['websiteUrl'])
+                results['totalResults'] = 0
+
+            if results['totalResults'] > 0:
+                print("returned rows: " + str(results['rows']))
+                #print(smalldf)
+                smalldf = smalldf.append(results['rows'])
+                #print(smalldf)
+                smalldf.columns = [dimensions,metrics]
+                #print(smalldf)
+            
+                smalldf.insert(0,'viewid',item['id'])
+                print(smalldf)
+
+                smalldf.insert(1,'websiteUrl',item['websiteUrl'])
+                if dimensions == "pagePath":
+                    smalldf['Url'] = smalldf['websiteUrl'] + smalldf[dimensions]
+                
+
+                bigdf = pd.concat([bigdf,smalldf],sort=True)
+                print(bigdf)
+
+    # Got the bigdf now of all the data from this account, so add it into the combined
+    combinedDF = pd.concat([combinedDF,bigdf],sort=True)
+
+    # Probably not necessary to actually delete them, but makes the code easier for me to understand
+    #del smalldf
+    del bigdf
+    del profiles
+    del service
+
+# Finished collecting everything, time to output to a file
+if googleaccountstring > "" :
+    name = googleaccountstring + "-" + name 
+
+combinedDF.reset_index()
 
 with ExcelWriter(name + '.xlsx') as writer:
-  bigdf.to_excel(writer, sheet_name='data')
+  combinedDF.to_excel(writer, sheet_name='data')
   optionsdf.to_excel(writer,sheet_name="Options")
 print("finished and outputed to excel file")
 
