@@ -1,6 +1,19 @@
 
+analytics.dat
+client_secret.json.old
+client_secrets.json
+finaloutput04
+gafileout.xlsx.xlsx
+search-console2019-04-26-15-45-05.xlsx
+search-console2019-04-26-15-52-43.xlsx
+webmasters.dat
+~$search-console2019-04-26-15-45-05.xlsx
+~$search-console2019-04-26-15-52-43.xlsx
 Dont Upload This!!.txt
 Google-tools.py
 analytics.dat
 client_secrets.json
 webmasters.dat
+
+__pycache__/googleAPIget_service.cpython-37.pyc
+*.json
