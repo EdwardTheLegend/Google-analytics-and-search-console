@@ -61,18 +61,18 @@ try:
 except:
     googleaccountslist = [googleaccountstring]
 
-print(googleaccountslist)
+#print(googleaccountslist)
 
 combinedDF = pd.DataFrame()
 
 for thisgoogleaccount in googleaccountslist:
-    print(thisgoogleaccount)
+    print("Processing: " + thisgoogleaccount)
     # Authenticate and construct service.
     service = get_service('webmasters', 'v3', scope, 'client_secrets.json', thisgoogleaccount)
     profiles = service.sites().list().execute()
     #profiles is now list    
 
-    print("Len Profiles siteEntry: " + str(len(profiles['siteEntry'])))
+    #print("Len Profiles siteEntry: " + str(len(profiles['siteEntry'])))
 
     bar = IncrementalBar('Processing',max=len(profiles['siteEntry']))
 
@@ -102,7 +102,7 @@ for thisgoogleaccount in googleaccountslist:
                 #print(smalldf)
             
                 smalldf.insert(0,'siteUrl',item['siteUrl'])
-                #print(smalldf)
+                print(smalldf)
                 if len(bigdf.columns) == 0:
                     bigdf = smalldf.copy()
                 else:
@@ -114,10 +114,11 @@ for thisgoogleaccount in googleaccountslist:
     bigdf.reset_index()
     #bigdf.to_json("output.json",orient="records")
 
-    bigdf['keys'] = bigdf["keys"].str[0]
+    if len(bigdf) > 0:
+        bigdf['keys'] = bigdf["keys"].str[0]
 
-    # Got the bigdf now of all the data from this account, so add it into the combined
-    combinedDF = pd.concat([combinedDF,bigdf],sort=True)
+        # Got the bigdf now of all the data from this account, so add it into the combined
+        combinedDF = pd.concat([combinedDF,bigdf],sort=True)
 
     # clean up objects used in this pass
     del bigdf
@@ -125,10 +126,11 @@ for thisgoogleaccount in googleaccountslist:
     del service
 
 
+if len(combinedDF) > 0:
+    if googleaccountstring > "" :
+        name = googleaccountstring + "-" + name 
 
-if googleaccountstring > "" :
-    name = googleaccountstring + "-" + name 
-
-combinedDF.to_excel(name + '.xlsx', sheet_name='data')
-print("finished")
-
+    combinedDF.to_excel(name + '.xlsx', sheet_name='data')
+    print("finished")
+else:
+    print("nothing found")
