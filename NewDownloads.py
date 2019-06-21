@@ -7,6 +7,7 @@ from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
 import pandas as pd
+from pandas import ExcelWriter
 import openpyxl
 from progress.bar import IncrementalBar
 from googleAPIget_service import get_service
