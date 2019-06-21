@@ -93,10 +93,14 @@ Navigate to:
 
 https://console.developers.google.com/start/api?id=webmasters&credential=client_key
 
+If promoted for agreement then:
+
 Click I agree
 Choose country
 Say yes or no to emails
 Click "Agree and continue"
+
+Otherwise just click continue
 
 **Wait patiently** until it says "The API is enabled".
 
@@ -110,7 +114,7 @@ If you have more than one project the select above.
 
 Search for the two apis you need:
 
-* Analytics API   (careful, *not* the "Google Analytics Reporting API")
+* Google Analytics API   (careful, *not* the "Google Analytics Reporting API")
 * Google Search Console API  (should already be enabled)
 
 For the first one click "Enable"
