@@ -105,7 +105,7 @@ for thisgoogleaccount in googleaccountslist:
                 #print(smalldf)
             
                 smalldf.insert(0,'siteUrl',item['siteUrl'])
-                print(smalldf)
+                #print(smalldf)
                 if len(bigdf.columns) == 0:
                     bigdf = smalldf.copy()
                 else:
