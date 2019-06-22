@@ -11,11 +11,12 @@ import pandas as pd
 from pandas import ExcelWriter
 import openpyxl
 from googleAPIget_service import get_service
+from progress.bar import IncrementalBar
 #import sys
 
 win_unicode_console.enable()
 
-
+debugvar = False
 
 parser = argparse.ArgumentParser()
 
@@ -45,7 +46,7 @@ googleaccountstring = args.googleaccount
 
 options = [[start_date,end_date,filters,dimensions,metrics,name,googleaccountstring]]
 optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name","Google Account"])
-#print(optionsdf)
+if debugvar: print(optionsdf)
 
 scope = ['https://www.googleapis.com/auth/analytics.readonly']
 
@@ -56,7 +57,7 @@ try:
 except:
     googleaccountslist = [googleaccountstring]
 
-print(googleaccountslist)
+if debugvar: print(googleaccountslist)
 
 if dimensions == "pagePath":
     combinedDF = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
@@ -65,7 +66,7 @@ else:
     
 
 for thisgoogleaccount in googleaccountslist:
-    print(thisgoogleaccount)
+    if debugvar: print(thisgoogleaccount)
     if dimensions == "pagePath":
         bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
     else:
@@ -80,15 +81,18 @@ for thisgoogleaccount in googleaccountslist:
     webPropertyId='~all').execute()
     #profiles is now list    
 
-    print("Processing: " + thisgoogleaccount)
-    print("Total profiles: " + str(profiles['totalResults']))
+    if debugvar: print("Processing: " + thisgoogleaccount)
+    if debugvar: print("Total profiles: " + str(profiles['totalResults']))
+
+    bar = IncrementalBar('Processing',max=profiles['totalResults'])
 
     for item in profiles['items']:
+        bar.next()
         if 'starred' in item:
             smalldf = pd.DataFrame()
-            #print(item['id'] + ',' + start_date + ',' + end_date)
+            if debugvar: print(item['id'] + ',' + start_date + ',' + end_date)
             
-            print("Try querying: "+ str(item['id'])+":"+  item['websiteUrl'])
+            if debugvar: print("Try querying: "+ str(item['id'])+":"+  item['websiteUrl'])
             try:
                 results = service.data().ga().get(
                 ids='ga:' + str(item['id']),
@@ -100,19 +104,19 @@ for thisgoogleaccount in googleaccountslist:
                 dimensions='ga:' + dimensions,
                 metrics='ga:' + metrics).execute()
             except:
-                print("GA call failed for " + item['websiteUrl'])
+                if debugvar: print("GA call failed for " + item['websiteUrl'])
                 results['totalResults'] = 0
 
             if results['totalResults'] > 0:
-                print("returned rows: " + str(results['rows']))
-                #print(smalldf)
+                if debugvar: print("returned rows: " + str(results['rows']))
+                if debugvar: print(smalldf)
                 smalldf = smalldf.append(results['rows'])
-                #print(smalldf)
+                if debugvar: print(smalldf)
                 smalldf.columns = [dimensions,metrics]
-                #print(smalldf)
+                if debugvar: print(smalldf)
             
                 smalldf.insert(0,'viewid',item['id'])
-                print(smalldf)
+                if debugvar: print(smalldf)
 
                 smalldf.insert(1,'websiteUrl',item['websiteUrl'])
                 if dimensions == "pagePath":
@@ -120,7 +124,8 @@ for thisgoogleaccount in googleaccountslist:
                 
 
                 bigdf = pd.concat([bigdf,smalldf],sort=True)
-                print(bigdf)
+                if debugvar: print(bigdf)
+    bar.finish()
 
     # Got the bigdf now of all the data from this account, so add it into the combined
     combinedDF = pd.concat([combinedDF,bigdf],sort=True)
@@ -134,6 +139,8 @@ for thisgoogleaccount in googleaccountslist:
 # Finished collecting everything, time to output to a file
 if googleaccountstring > "" :
     name = googleaccountstring + "-" + name 
+
+combinedDF['pageviews'] = combinedDF['pageviews'].astype(int)
 
 combinedDF.reset_index()
 
