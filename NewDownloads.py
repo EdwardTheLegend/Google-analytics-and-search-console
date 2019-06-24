@@ -43,7 +43,7 @@ dataType = args.type
 googleaccountstring = args.googleaccount
 
 if name == 'search-console-[dimensions]-[datestring]':
-    name = 'search-console-' + dimensions + '-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is search-console- + the current date. You do NOT need to add file extension.")
+    name = 'search-console-' + dimensions + '-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
 ## test vars defined here
 # start_date = '2019-04-01'
