@@ -133,7 +133,14 @@ if len(combinedDF) > 0:
     if googleaccountstring > "" :
         name = googleaccountstring + "-" + name 
 
-    combinedDF.to_excel(name + '.xlsx', sheet_name='data')
-    print("finished")
+    options = [[start_date,end_date,dimensions,name,dataType,googleaccountstring]]
+    optionsdf = pd.DataFrame(options, columns=["start_date","end_date","dimensions","name","Data Type","Google Account"])
+
+    combinedDF.reset_index()
+
+    with ExcelWriter(name + '.xlsx') as writer:
+        combinedDF.to_excel(writer, sheet_name='data')
+        optionsdf.to_excel(writer,sheet_name="Options")
+        print("finished and outputed to excel file")
 else:
     print("nothing found")
