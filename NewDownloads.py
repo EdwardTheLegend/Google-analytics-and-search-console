@@ -36,14 +36,15 @@ args = parser.parse_args()
 start_date = args.start_date
 end_date = args.end_date
 #filters = args.filters
-dimensions = args.dimensions
+dimensionsstring = args.dimensions
+dimensionsarray = dimensionsstring.split(",")
 #metrics = args.metrics
 name = args.name
 dataType = args.type
 googleaccountstring = args.googleaccount
 
 if name == 'search-console-[dimensions]-[datestring]':
-    name = 'search-console-' + dimensions + '-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    name = 'search-console-' + dimensionsstring + '-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
 ## test vars defined here
 # start_date = '2019-04-01'
@@ -93,7 +94,7 @@ for thisgoogleaccount in googleaccountslist:
             siteUrl=item['siteUrl'], body={
                 'startDate': start_date,
                 'endDate': end_date,
-                'dimensions': [dimensions],
+                'dimensions': dimensionsarray,
                 'searchType': dataType,
                 'rowLimit': 5000
             }).execute()
@@ -133,7 +134,7 @@ if len(combinedDF) > 0:
     if googleaccountstring > "" :
         name = googleaccountstring + "-" + name 
 
-    options = [[start_date,end_date,dimensions,name,dataType,googleaccountstring]]
+    options = [[start_date,end_date,dimensionsstring,name,dataType,googleaccountstring]]
     optionsdf = pd.DataFrame(options, columns=["start_date","end_date","dimensions","name","Data Type","Google Account"])
 
     combinedDF.reset_index()
