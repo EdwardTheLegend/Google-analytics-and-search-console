@@ -25,7 +25,7 @@ parser.add_argument("start_date", help="start date in format yyyy-mm-dd or 'yest
 parser.add_argument("end_date", help="start date in format yyyy-mm-dd or 'today'")
 parser.add_argument("-t", "--type", default="web", choices=("image","video","web"), help="Search types for the returned data, default is web")
 #parser.add_argument("-f","--filters",default=2,type=int, help="Minimum number for metric, default is 2")
-parser.add_argument("-d","--dimensions",default="page", help="The dimensions are the left hand side of the table, default is page. Options are date, query, page, country, device")
+parser.add_argument("-d","--dimensions",default="page", help="The dimensions are the left hand side of the table, default is page. Options are date, query, page, country, device.  Combine two by specifying -d page,query ")
 #parser.add_argument("-m","--metrics",default="pageviews", help="The metrics are the things on the left, default is pageviews")
 parser.add_argument("-n","--name",default='search-console-[dimensions]-[datestring]',type=str, help="File name for final output, default is search-console- + the current date. You do NOT need to add file extension")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
@@ -35,25 +35,17 @@ args = parser.parse_args()
 
 start_date = args.start_date
 end_date = args.end_date
-#filters = args.filters
+
 dimensionsstring = args.dimensions
 dimensionsarray = dimensionsstring.split(",")
-#metrics = args.metrics
+multidimention = len(dimensionsarray) > 1
+
 name = args.name
 dataType = args.type
 googleaccountstring = args.googleaccount
 
 if name == 'search-console-[dimensions]-[datestring]':
     name = 'search-console-' + dimensionsstring + '-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-
-## test vars defined here
-# start_date = '2019-04-01'
-# end_date = '2019-04-07'
-
-# dimensions = 'page'
-# name = 'output'
-
-## end test vars
 
 scope = ['https://www.googleapis.com/auth/webmasters.readonly']
 
@@ -104,6 +96,10 @@ for thisgoogleaccount in googleaccountslist:
                 #print(smalldf)
                 smalldf = smalldf.append(results['rows'])
                 #print(smalldf)
+
+                if multidimention:
+                    smalldf[['key1','key2']] = pd.DataFrame(smalldf['keys'].tolist(), index= smalldf.index)
+                    smalldf['keys']
             
                 smalldf.insert(0,'siteUrl',item['siteUrl'])
                 #print(smalldf)
