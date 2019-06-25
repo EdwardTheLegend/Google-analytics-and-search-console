@@ -20,23 +20,29 @@ optional arguments:
                         Search types for the returned data, default is web
   -d DIMENSIONS, --dimensions DIMENSIONS
                         The dimensions are the left hand side of the table,
-                        default is page
-  -n NAME, --name NAME  File name for final output, default is finaloutput +
-                        the current date. You do NOT need to add file
-                        extension.
+                        default is page. Options are date, query, page,
+                        country, device. Combine two by specifying -d
+                        page,query
+  -n NAME, --name NAME  File name for final output, default is search-console-
+                        + the current date. You do NOT need to add file
+                        extension
   -g GOOGLEACCOUNT, --googleaccount GOOGLEACCOUNT
                         Name of a google account; does not have to literally
                         be the account name but becomes a token to access that
                         particular set of secrets. Client secrets will have to
                         be in this a file that is this string concatenated
-                        with client_secret.json
+                        with client_secret.json. OR if this is the name of a
+                        text file then every line in the text file is
+                        processed as one user and all results appended
+                        together into a file file
+
 ~~~~
 ## GACombined2.py      
 
 This script download from Google Analytics but ***ONLY*** views which are marked as starred/fav
 
 ~~~~
-usage: GACombined2.py [-h] [-f FILTERS] [-d DIMENSIONS] [-m METRICS] [-n NAME]
+uusage: GACombined2.py [-h] [-f FILTERS] [-d DIMENSIONS] [-m METRICS] [-n NAME]
                       [-g GOOGLEACCOUNT]
                       start_date end_date
 
@@ -55,7 +61,7 @@ optional arguments:
   -m METRICS, --metrics METRICS
                         The metrics are the things on the left, default is
                         pageviews
-  -n NAME, --name NAME  File name for final output, default is finaloutput +
+  -n NAME, --name NAME  File name for final output, default is analytics- +
                         the current date. You do NOT need to add file
                         extension.
   -g GOOGLEACCOUNT, --googleaccount GOOGLEACCOUNT
@@ -67,6 +73,7 @@ optional arguments:
                         text file then every line in the text file is
                         processed as one user and all results appended
                         together into a file file
+
 ~~~~
 #pip commands
 copy and paste these into the terminal
@@ -87,74 +94,4 @@ https://developers.google.com/webmaster-tools/search-console-api-original/v3/qui
 
 If you are using multiple google accounts then for every google account "email@example.com" create a secrets file called email@example.com-clients_secrets.json
 
-# Detailed instructions for creating google client secrets
-
-Navigate to:
-
-https://console.developers.google.com/start/api?id=webmasters&credential=client_key
-
-If promoted for agreement then:
-
-Click I agree
-Choose country
-Say yes or no to emails
-Click "Agree and continue"
-
-Otherwise just click continue
-
-**Wait patiently** until it says "The API is enabled".
-
-You now have an empty project called "My Project", which you may rename.
-
-Turn on the required APIs by going to:
-
-https://console.developers.google.com/apis/library
-
-If you have more than one project the select above.
-
-Search for the two apis you need:
-
-* Google Analytics API   (careful, *not* the "Google Analytics Reporting API")
-* Google Search Console API  (should already be enabled)
-
-For the first one click "Enable"
-
-For the second one, it should already be enabled and you will have a "Manage" button
-
-Now go back to your credentials screen:
-
-https://console.developers.google.com/apis/credentials
-
-Select the project if you have more than one
-
-Click the button Create Credentials.
-
-Choose "OAuth client ID" 
-
-Click "Configure consent screen"
-
-Specify a name such as "GA and GSC downloader"
-
-Click Save
-
-You are now back at the "Create OAuth client ID" page.
-
-Choose Other
-
-Specify a name "Python script" or leave default
-
-Click "Create"
-
-See the warning about 100 sensitive scope logins.
-
-Click OK.
-
-A single line of credentials is now created.
-
-Click on the download icon to the far right.
-
-rename the file either client_secrets.json for a single user or [string]-client_secrets.json where you will use the [string] value as an input for the -g arg
-
-Create the .dat authenticatin files ahead of time by running authenticateoneuser.py
-
-Run it twice to get both done.  Accept that the appication is not verified.
+For detailed instructions see the file: google-client-secrets-instructions.md
