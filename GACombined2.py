@@ -88,7 +88,12 @@ for thisgoogleaccount in googleaccountslist:
 
     bar = IncrementalBar('Processing',max=profiles['totalResults'])
 
+    itemcounter = 0
+
     for item in profiles['items']:
+        if test is not None:
+            if itemcounter == test:
+                break
         bar.next()
         if 'starred' in item:
             smalldf = pd.DataFrame()
@@ -127,6 +132,7 @@ for thisgoogleaccount in googleaccountslist:
 
                 bigdf = pd.concat([bigdf,smalldf],sort=True)
                 if debugvar: print(bigdf)
+        itemcounter = itemcounter + 1
     bar.finish()
 
     # Got the bigdf now of all the data from this account, so add it into the combined
@@ -142,7 +148,7 @@ for thisgoogleaccount in googleaccountslist:
 if googleaccountstring > "" :
     name = googleaccountstring + "-" + name 
 
-combinedDF['pageviews'] = combinedDF['pageviews'].astype(int)
+combinedDF['ga:pageviews'] = combinedDF['ga:pageviews'].astype(int)
 
 combinedDF.reset_index()
 
