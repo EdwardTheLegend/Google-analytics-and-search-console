@@ -20,13 +20,14 @@ debugvar = False
 
 parser = argparse.ArgumentParser()
 
+results = {}
 #when doing argument parsing in command terminal put python before file name. No idea why, so just do it.
 
 
 #parser.add_argument("viewProfileID",type=int, help="GA View (profile) ID as a number") !!!already got this from loop!!!
 parser.add_argument("start_date", help="start date in format yyyy-mm-dd or 'yesterday' '7DaysAgo'")
 parser.add_argument("end_date", help="start date in format yyyy-mm-dd or 'today'")
-parser.add_argument("-f","--filters",default=2,type=int, help="Minimum number for metric, default is 2")
+parser.add_argument("-f","--filters",default='ga:pageviews>2', help="Filter, default is 'ga:pageviews>2'")
 parser.add_argument("-d","--dimensions",default="ga:pagePath", help="The dimensions are the left hand side of the table, default is pagePath. YOU HAVE TO ADD 'ga:' before your dimension")
 parser.add_argument("-m","--metrics",default="ga:pageviews", help="The metrics are the things on the left, default is pageviews. YOU HAVE TO ADD 'ga:' before your metric")
 parser.add_argument("-n","--name",default='analytics-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is analytics- + the current date. You do NOT need to add file extension.")
@@ -105,16 +106,17 @@ for thisgoogleaccount in googleaccountslist:
                 ids='ga:' + str(item['id']),
                 start_date=start_date,
                 end_date=end_date,
-                filters='ga:pageviews>' + str(filters),
-                #sort='-ga:pageviews',
+                filters=filters,
+                #sort='-ga:pageviews', 
                 max_results='1000',
                 dimensions= dimensions,
                 metrics= metrics).execute()
+                dataPresent = True
             except:
                 if debugvar: print("GA call failed for " + item['websiteUrl'])
-                results['totalResults'] = 0
+                dataPresent = False
 
-            if results['totalResults'] > 0:
+            if dataPresent:
                 if debugvar: print("returned rows: " + str(results['rows']))
                 if debugvar: print(smalldf)
                 smalldf = smalldf.append(results['rows'])
@@ -148,7 +150,7 @@ for thisgoogleaccount in googleaccountslist:
 if googleaccountstring > "" :
     name = googleaccountstring + "-" + name 
 
-combinedDF['ga:pageviews'] = combinedDF['ga:pageviews'].astype(int)
+combinedDF[metrics] = combinedDF[metrics].astype(float)
 
 combinedDF.reset_index()
 
