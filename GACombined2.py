@@ -92,6 +92,7 @@ for thisgoogleaccount in googleaccountslist:
     itemcounter = 0
 
     for item in profiles['items']:
+        dataPresent = False
         if test is not None:
             if itemcounter == test:
                 break
@@ -111,7 +112,8 @@ for thisgoogleaccount in googleaccountslist:
                 max_results='1000',
                 dimensions= dimensions,
                 metrics= metrics).execute()
-                dataPresent = True
+                if results['totalResults'] > 0:
+                    dataPresent = True
             except:
                 if debugvar: print("GA call failed for " + item['websiteUrl'])
                 dataPresent = False
