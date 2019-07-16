@@ -51,6 +51,8 @@ options = [[start_date,end_date,filters,dimensions,metrics,name,googleaccountstr
 optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name","Google Account"])
 if debugvar: print(optionsdf)
 
+splitMetrics = metrics.split(',')
+
 scope = ['https://www.googleapis.com/auth/analytics.readonly']
 
 try:
@@ -62,18 +64,31 @@ except:
 
 if debugvar: print(googleaccountslist)
 
-if dimensions == "pagePath":
-    combinedDF = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
+if ',' in metrics:
+    splitMetrics = metrics.split(',')
+    if dimensions == "ga:pagePath":
+        combinedDF = pd.DataFrame(columns=['viewid','Url',dimensions])
+    else:
+        combinedDF = pd.DataFrame(columns=['viewid',dimensions])
 else:
-    combinedDF = pd.DataFrame(columns=['viewid',dimensions,metrics])
+    if dimensions == "ga:pagePath":
+        combinedDF = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
+    else:
+        combinedDF = pd.DataFrame(columns=['viewid',dimensions,metrics])
     
 
 for thisgoogleaccount in googleaccountslist:
     if debugvar: print(thisgoogleaccount)
-    if dimensions == "pagePath":
-        bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
+    if ',' in metrics:
+        if dimensions == "ga:pagePath":
+            bigdf = pd.DataFrame(columns=['viewid','Url',dimensions])
+        else:
+            bigdf = pd.DataFrame(columns=['viewid',dimensions])
     else:
-        bigdf = pd.DataFrame(columns=['viewid',dimensions,metrics])
+        if dimensions == "ga:pagePath":
+            bigdf = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
+        else:
+            bigdf = pd.DataFrame(columns=['viewid',dimensions,metrics])
     
 
     # Authenticate and construct service.
@@ -123,14 +138,14 @@ for thisgoogleaccount in googleaccountslist:
                 if debugvar: print(smalldf)
                 smalldf = smalldf.append(results['rows'])
                 if debugvar: print(smalldf)
-                smalldf.columns = [dimensions,metrics]
+                smalldf.columns = [dimensions] + splitMetrics
                 if debugvar: print(smalldf)
             
                 smalldf.insert(0,'viewid',item['id'])
                 if debugvar: print(smalldf)
 
                 smalldf.insert(1,'websiteUrl',item['websiteUrl'])
-                if dimensions == "pagePath":
+                if dimensions == "ga:pagePath":
                     smalldf['Url'] = smalldf['websiteUrl'] + smalldf[dimensions]
                 
 
@@ -152,7 +167,7 @@ for thisgoogleaccount in googleaccountslist:
 if googleaccountstring > "" :
     name = googleaccountstring + "-" + name 
 
-combinedDF[metrics] = combinedDF[metrics].astype(float)
+combinedDF[splitMetrics] = combinedDF[splitMetrics].apply(pd.to_numeric)
 
 combinedDF.reset_index()
 
