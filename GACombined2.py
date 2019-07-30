@@ -12,11 +12,13 @@ from pandas import ExcelWriter
 import openpyxl
 from googleAPIget_service import get_service
 from progress.bar import IncrementalBar
+from googleapiclient.errors import HttpError
+import json
 #import sys
 
 win_unicode_console.enable()
 
-debugvar = False
+debugvar = True
 
 parser = argparse.ArgumentParser()
 
@@ -129,6 +131,14 @@ for thisgoogleaccount in googleaccountslist:
                 metrics= metrics).execute()
                 if results['totalResults'] > 0:
                     dataPresent = True
+            except HttpError as err:
+                # if err.resp.get('content-type', '').startswith('application/json'):
+                #     reason = json.loads(err.content).get('error').get('errors')[0].get('reason')
+                #     raise HttpError("HTTP data was invalid or unexpected /n Reason is:",)
+                #     print(reason)
+                # else:
+                #     raise HttpError("HTTP data was invalid or unexpected")
+                print(err.resp.status, err._get_reason())
             except:
                 if debugvar: print("GA call failed for " + item['websiteUrl'])
                 dataPresent = False
@@ -159,9 +169,9 @@ for thisgoogleaccount in googleaccountslist:
 
     # Probably not necessary to actually delete them, but makes the code easier for me to understand
     #del smalldf
-    del bigdf
-    del profiles
-    del service
+    # del bigdf
+    # del profiles
+    # del service
 
 # Finished collecting everything, time to output to a file
 if googleaccountstring > "" :
