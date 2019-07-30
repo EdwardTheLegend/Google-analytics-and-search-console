@@ -18,7 +18,7 @@ import json
 
 win_unicode_console.enable()
 
-debugvar = True
+debugvar = False
 
 parser = argparse.ArgumentParser()
 
