@@ -98,7 +98,7 @@ for thisgoogleaccount in googleaccountslist:
                 #print(smalldf)
 
                 if multidimention:
-                    smalldf[['key1','key2']] = pd.DataFrame(smalldf['keys'].tolist(), index= smalldf.index)
+                    smalldf[['key-1','key-2']] = pd.DataFrame(smalldf['keys'].tolist(), index= smalldf.index)
                     smalldf['keys']
             
                 smalldf.insert(0,'siteUrl',item['siteUrl'])
