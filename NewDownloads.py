@@ -98,6 +98,7 @@ for thisgoogleaccount in googleaccountslist:
                 #print(smalldf)
 
                 if multidimention:
+                    #solves key1 reserved word problem
                     smalldf[['key-1','key-2']] = pd.DataFrame(smalldf['keys'].tolist(), index= smalldf.index)
                     smalldf['keys']
             
