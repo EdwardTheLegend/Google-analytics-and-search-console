@@ -14,6 +14,7 @@ from googleAPIget_service import get_service
 from progress.bar import IncrementalBar
 from googleapiclient.errors import HttpError
 import json
+from urllib.parse import urlparse
 #import sys
 
 win_unicode_console.enable()
@@ -33,7 +34,7 @@ parser.add_argument("-f","--filters",default='ga:pageviews>2', help="Filter, def
 parser.add_argument("-d","--dimensions",default="ga:pagePath", help="The dimensions are the left hand side of the table, default is pagePath. YOU HAVE TO ADD 'ga:' before your dimension")
 parser.add_argument("-m","--metrics",default="ga:pageviews", help="The metrics are the things on the left, default is pageviews. YOU HAVE TO ADD 'ga:' before your metric")
 parser.add_argument("-n","--name",default='analytics-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is analytics- + the current date. You do NOT need to add file extension.")
-parser.add_argument("-t","--test",type=int,help="Test option which makes the script output only n results, default is 3.")
+parser.add_argument("-t","--test",nargs='?',const=3,type=int,help="Test option which makes the script output only n results, default is 3.")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
 
 parser.add_argument("-g","--googleaccount",type=str, default="", help="Name of a google account; does not have to literally be the account name but becomes a token to access that particular set of secrets. Client secrets will have to be in this a file that is this string concatenated with client_secret.json.  OR if this is the name of a text file then every line in the text file is processed as one user and all results appended together into a file file")
@@ -77,9 +78,12 @@ else:
         combinedDF = pd.DataFrame(columns=['viewid','Url',dimensions,metrics])
     else:
         combinedDF = pd.DataFrame(columns=['viewid',dimensions,metrics])
-    
 
+numberOfAccountsDone = 0
 for thisgoogleaccount in googleaccountslist:
+    if test is not None and numberOfAccountsDone > 0:
+        break
+    numberOfAccountsDone += 1
     if debugvar: print(thisgoogleaccount)
     if ',' in metrics:
         if dimensions == "ga:pagePath":
@@ -110,9 +114,8 @@ for thisgoogleaccount in googleaccountslist:
 
     for item in profiles['items']:
         dataPresent = False
-        if test is not None:
-            if itemcounter == test:
-                break
+        if test is not None and itemcounter == test:
+            break
         bar.next()
         if 'starred' in item:
             smalldf = pd.DataFrame()
@@ -158,10 +161,14 @@ for thisgoogleaccount in googleaccountslist:
                 if dimensions == "ga:pagePath":
                     smalldf['Url'] = smalldf['websiteUrl'] + smalldf[dimensions]
                 
+                rootDomain = urlparse(item['websiteUrl']).hostname
+                if 'www.' in rootDomain:
+                    rootDomain = rootDomain.replace('www.','')
+                smalldf.insert(0,'rootDomain',rootDomain)
 
                 bigdf = pd.concat([bigdf,smalldf],sort=True)
                 if debugvar: print(bigdf)
-        itemcounter = itemcounter + 1
+        itemcounter += 1
     bar.finish()
 
     # Got the bigdf now of all the data from this account, so add it into the combined
