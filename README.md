@@ -75,14 +75,7 @@ optional arguments:
 copy and paste these into the terminal
 
 ~~~~
-pip install argparse
-pip install datetime
-pip install win_unicode_console
-pip install google-api-python-client
-pip install pandas
-pip install openpyxl
-pip install progress
-pip install oauth2client
+pip install argparse datetime win_unicode_console google-api-python-client pandas openpyxl progress oauth2client httplib2 progress urllib3
 ~~~~
 
 You need a Oauth2 account and put clients_secrets.json in same folder as script
