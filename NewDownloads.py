@@ -11,6 +11,7 @@ from pandas import ExcelWriter
 import openpyxl
 from progress.bar import IncrementalBar
 from googleAPIget_service import get_service
+from urllib.parse import urlparse
 
 win_unicode_console.enable()
 
@@ -101,8 +102,13 @@ for thisgoogleaccount in googleaccountslist:
                     #solves key1 reserved word problem
                     smalldf[['key-1','key-2']] = pd.DataFrame(smalldf['keys'].tolist(), index= smalldf.index)
                     smalldf['keys']
-            
+
+                rootDomain = urlparse(item['siteUrl']).hostname
+                if 'www.' in rootDomain:
+                    rootDomain = rootDomain.replace('www.','')
+
                 smalldf.insert(0,'siteUrl',item['siteUrl'])
+                smalldf.insert(0,'rootDomain',rootDomain)
                 #print(smalldf)
                 if len(bigdf.columns) == 0:
                     bigdf = smalldf.copy()
