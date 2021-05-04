@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import time
 import win_unicode_console
 from apiclient.discovery import build
 import httplib2
@@ -36,6 +37,7 @@ parser.add_argument("-m","--metrics",default="ga:pageviews", help="The metrics a
 parser.add_argument("-n","--name",default='analytics-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),type=str, help="File name for final output, default is analytics- + the current date. You do NOT need to add file extension.")
 parser.add_argument("-t","--test",nargs='?',const=3,type=int,help="Test option which makes the script output only n results, default is 3.")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
+parser.add_argument("-w","--wait",type=int, default=0, help="Wait in seconds between API calls to prevent quota problems; default 0 seconds")
 
 parser.add_argument("-g","--googleaccount",type=str, default="", help="Name of a google account; does not have to literally be the account name but becomes a token to access that particular set of secrets. Client secrets will have to be in this a file that is this string concatenated with client_secret.json.  OR if this is the name of a text file then every line in the text file is processed as one user and all results appended together into a file file")
 
@@ -49,6 +51,8 @@ metrics = args.metrics
 name = args.name
 test = args.test
 googleaccountstring = args.googleaccount
+wait_seconds = args.wait
+
 
 options = [[start_date,end_date,filters,dimensions,metrics,name,googleaccountstring]]
 optionsdf = pd.DataFrame(options, columns=["start_date","end_date","filters","dimensions","metrics","name","Google Account"])
@@ -120,7 +124,10 @@ for thisgoogleaccount in googleaccountslist:
         if 'starred' in item:
             smalldf = pd.DataFrame()
             if debugvar: print(item['id'] + ',' + start_date + ',' + end_date)
-            
+
+            if wait_seconds > 0:
+                # print("Sleeping %4d seconds" % (wait_seconds))
+                time.sleep(wait_seconds)
             if debugvar: print("Try querying: "+ str(item['id'])+":"+  item['websiteUrl'])
             try:
                 results = service.data().ga().get(

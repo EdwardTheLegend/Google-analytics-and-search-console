@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import time
 import win_unicode_console
 from apiclient.discovery import build
 import httplib2
@@ -31,11 +32,13 @@ parser.add_argument("-d","--dimensions",default="page", help="The dimensions are
 parser.add_argument("-n","--name",default='search-console-[dimensions]-[datestring]',type=str, help="File name for final output, default is search-console- + the current date. You do NOT need to add file extension")
 #parser.add_argument("-c", "--clean", action="count", default=0, help="clean output skips header and count and just sends csv rows")
 parser.add_argument("-g","--googleaccount",type=str, default="", help="Name of a google account; does not have to literally be the account name but becomes a token to access that particular set of secrets. Client secrets will have to be in this a file that is this string concatenated with client_secret.json.  OR if this is the name of a text file then every line in the text file is processed as one user and all results appended together into a file file")
+parser.add_argument("-w","--wait",type=int, default=0, help="Wait in seconds between API calls to prevent quota problems; default 0 seconds")
 
 args = parser.parse_args()
 
 start_date = args.start_date
 end_date = args.end_date
+wait_seconds = args.wait
 
 dimensionsstring = args.dimensions
 dimensionsarray = dimensionsstring.split(",")
@@ -81,6 +84,9 @@ for thisgoogleaccount in googleaccountslist:
         if item['permissionLevel'] != 'siteUnverifiedUser':
 
             smalldf = pd.DataFrame()
+            if wait_seconds > 0:
+                # print("Sleeping %4d seconds" % (wait_seconds))
+                time.sleep(wait_seconds)
 
             #print(item['id'] + ',' + start_date + ',' + end_date)
             results = service.searchanalytics().query(
