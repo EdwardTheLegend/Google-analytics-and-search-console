@@ -17,3 +17,4 @@ Google-tools.py
 *.dat
 *.xlsx
 __pycache__/googleAPIget_service.cpython-38.pyc
+GACombined2-debug.py
