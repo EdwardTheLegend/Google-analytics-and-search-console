@@ -74,6 +74,10 @@ for thisgoogleaccount in googleaccountslist:
 
     #print("Len Profiles siteEntry: " + str(len(profiles['siteEntry'])))
 
+    if 'siteEntry' not in profiles:
+        print("No siteEntry found for this profile")
+        continue
+
     bar = IncrementalBar('Processing',max=len(profiles['siteEntry']))
 
 
@@ -95,7 +99,7 @@ for thisgoogleaccount in googleaccountslist:
                 'endDate': end_date,
                 'dimensions': dimensionsarray,
                 'searchType': dataType,
-                'rowLimit': 5000
+                'rowLimit': 25000
             }).execute()
 
             if len(results) == 2:
